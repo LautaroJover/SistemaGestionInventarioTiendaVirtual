@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 
+// Estados válidos para un pedido (los mismos que valida el backend)
+const ESTADOS = ['pendiente', 'enviado', 'entregado'];
+
 export default function Pedidos() {
   const [pedidos, setPedidos]     = useState([]);
   const [clientes, setClientes]   = useState([]);
@@ -55,13 +58,21 @@ export default function Pedidos() {
     }
   };
 
-  // Helper para formatear la fecha
+  // Cambia el estado de un pedido usando la nueva ruta PUT.
+  const cambiarEstado = async (id, nuevoEstado) => {
+    try {
+      await api.put(`/pedidos/${id}/estado`, { estado: nuevoEstado });
+      cargar(); // refrescamos la lista
+    } catch (err) {
+      alert('Error: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
   const fmtFecha = (iso) => {
     const d = new Date(iso);
     return d.toLocaleDateString('es-AR', { year: 'numeric', month: '2-digit', day: '2-digit' });
   };
 
-  // Clase CSS según el estado (colorea el badge)
   const badgeEstado = (estado) => {
     if (estado === 'entregado') return 'badge badge-estado badge-entregado';
     if (estado === 'enviado')   return 'badge badge-estado badge-enviado';
@@ -115,7 +126,6 @@ export default function Pedidos() {
                 <p className="card-linea">📅 Fecha: <strong>{fmtFecha(p.fecha)}</strong></p>
                 <p className="card-linea">💰 Total: <strong>${p.total}</strong></p>
 
-                {/* Lista detallada de productos (gracias al .populate) */}
                 <h4 className="subtitulo">Productos:</h4>
                 {p.productos && p.productos.length > 0 ? (
                   <ul className="lista-productos">
@@ -132,6 +142,20 @@ export default function Pedidos() {
                 ) : (
                   <p className="card-linea">Sin productos.</p>
                 )}
+
+                {/* Selector de estado (requisito 4) */}
+                <div className="estado-cambiar">
+                  <label className="label">Cambiar estado:</label>
+                  <select
+                    className="input"
+                    value={p.estado}
+                    onChange={(e) => cambiarEstado(p._id, e.target.value)}
+                  >
+                    {ESTADOS.map(est => (
+                      <option key={est} value={est}>{est}</option>
+                    ))}
+                  </select>
+                </div>
 
                 <button className="btn btn-danger" onClick={() => eliminar(p._id)}>
                   🗑 Eliminar Pedido

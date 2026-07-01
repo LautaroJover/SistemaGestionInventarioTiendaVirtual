@@ -21,17 +21,17 @@ export default function Informes() {
   }, []);
 
   return (
-    <div>
+    <section className="seccion">
       <h2>📊 Informes de Ventas</h2>
 
       <h3>Por Producto</h3>
       <Tabla columnas={['Producto', 'Categoría', 'Unidades', 'Total ($)']}>
         {porProducto.map((p, i) => (
           <tr key={i}>
-            <td style={td}>{p.producto}</td>
-            <td style={td}>{p.categoria}</td>
-            <td style={td}>{p.unidadesVendidas}</td>
-            <td style={td}>${p.totalVendido}</td>
+            <td>{p.producto}</td>
+            <td>{p.categoria}</td>
+            <td>{p.unidadesVendidas}</td>
+            <td>${p.totalVendido}</td>
           </tr>
         ))}
       </Tabla>
@@ -40,9 +40,9 @@ export default function Informes() {
       <Tabla columnas={['Categoría', 'Unidades', 'Total ($)']}>
         {porCategoria.map((p, i) => (
           <tr key={i}>
-            <td style={td}>{p.categoria}</td>
-            <td style={td}>{p.unidadesVendidas}</td>
-            <td style={td}>${p.totalVendido}</td>
+            <td>{p.categoria}</td>
+            <td>{p.unidadesVendidas}</td>
+            <td>{p.totalVendido}</td>
           </tr>
         ))}
       </Tabla>
@@ -51,28 +51,25 @@ export default function Informes() {
       <Tabla columnas={['Mes', 'Pedidos', 'Total ($)']}>
         {porMes.map((p, i) => (
           <tr key={i}>
-            <td style={td}>{p.mes}</td>
-            <td style={td}>{p.cantidadPedidos}</td>
-            <td style={td}>${p.totalVendido}</td>
+            <td>{p.mes}</td>
+            <td>{p.cantidadPedidos}</td>
+            <td>${p.totalVendido}</td>
           </tr>
         ))}
       </Tabla>
-    </div>
+    </section>
   );
 }
 
 function Tabla({ columnas, children }) {
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
+    <table className="tabla-informes">
       <thead>
-        <tr style={{ background: '#f3f4f6' }}>
-          {columnas.map((c, i) => <th key={i} style={th}>{c}</th>)}
+        <tr>
+          {columnas.map((c, i) => <th key={i}>{c}</th>)}
         </tr>
       </thead>
       <tbody>{children}</tbody>
     </table>
   );
 }
-
-const th = { padding: 8, border: '1px solid #ddd', textAlign: 'left' };
-const td = { padding: 8, border: '1px solid #ddd' };

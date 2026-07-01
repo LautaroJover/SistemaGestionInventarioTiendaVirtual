@@ -48,6 +48,8 @@ Representa cada artículo que se vende en la tienda.
 | `descripcion` | String | Detalle del producto |
 | `precio` | Number | Precio unitario |
 | `stock` | Number | Cantidad disponible en inventario |
+| `categoria` | String | Categoría fija: `Componentes PC`, `Periféricos`, `Monitores`, `Notebooks` o `Accesorios` |
+| `imagen` | String | URL pública de la imagen del producto |
 | `categoria` | String | Categoría (ej: "Periféricos", "Audio") |
 
 **Ejemplo de documento:**
@@ -58,7 +60,8 @@ Representa cada artículo que se vende en la tienda.
   "descripcion": "Mouse óptico RGB",
   "precio": 15000,
   "stock": 25,
-  "categoria": "Periféricos"
+  "categoria": "Periféricos",
+  "imagen": "https://placehold.co/400x300/2563eb/ffffff?text=Mouse"
 }
 ```
 
@@ -131,34 +134,37 @@ El backend expone los siguientes endpoints:
 
 | Método | Ruta | Acción |
 |--------|------|--------|
-| GET | `/api/productos` | Lista todos los productos |
-| GET | `/api/productos/:id` | Obtiene un producto por ID |
-| POST | `/api/productos` | Crea un producto |
-| PUT | `/api/productos/:id` | Actualiza un producto |
-| DELETE | `/api/productos/:id` | Elimina un producto |
+| GET    | `/api/productos`        | Lista todos los productos |
+| GET    | `/api/productos/:id`    | Obtiene un producto por ID |
+| POST   | `/api/productos`        | Crea un producto |
+| PUT    | `/api/productos/:id`    | Actualiza un producto |
+| DELETE | `/api/productos/:id`    | Elimina un producto |
 
 ### Clientes (`/api/clientes`)
 
 | Método | Ruta | Acción |
 |--------|------|--------|
-| GET | `/api/clientes` | Lista todos los clientes |
-| POST | `/api/clientes` | Crea un cliente |
-| GET | `/api/clientes/:id` | Obtiene un cliente por ID |
+| GET    | `/api/clientes`         | Lista todos los clientes |
+| GET    | `/api/clientes/:id`     | Obtiene un cliente por ID |
+| POST   | `/api/clientes`         | Crea un cliente |
+| DELETE | `/api/clientes/:id`     | Elimina un cliente |
 
 ### Pedidos (`/api/pedidos`)
 
 | Método | Ruta | Acción |
 |--------|------|--------|
-| GET | `/api/pedidos` | Lista todos los pedidos (con populate) |
-| POST | `/api/pedidos` | **Crea un pedido y descuenta stock automáticamente** |
+| GET    | `/api/pedidos`               | Lista todos los pedidos con datos del cliente y de los productos (`.populate()`) |
+| POST   | `/api/pedidos`               | **Crea un pedido y descuenta stock automáticamente** |
+| PUT    | `/api/pedidos/:id/estado`    | Cambia el estado del pedido (`pendiente` / `enviado` / `entregado`) |
+| DELETE | `/api/pedidos/:id`           | Elimina un pedido |
 
 ### Informes (`/api/informes`)
 
 | Método | Ruta | Acción |
 |--------|------|--------|
-| GET | `/api/informes/ventas-por-producto` | Total vendido por producto |
+| GET | `/api/informes/ventas-por-producto`  | Total vendido por producto |
 | GET | `/api/informes/ventas-por-categoria` | Total vendido por categoría |
-| GET | `/api/informes/ventas-por-mes` | Total vendido por mes |
+| GET | `/api/informes/ventas-por-mes`       | Total vendido por mes |
 
 ---
 
@@ -371,7 +377,7 @@ cd backend
 npm run seed
 ```
 
-Esto inserta 5 productos, 3 clientes y 4 pedidos de ejemplo en la BD `tienda_inventario`.
+Esto inserta 6 productos (con imágenes), 3 clientes y 4 pedidos de ejemplo en la BD `tienda_inventario`.
 
 ---
 
@@ -380,10 +386,12 @@ Esto inserta 5 productos, 3 clientes y 4 pedidos de ejemplo en la BD `tienda_inv
 ```
 SistemaGestionInventarioTiendaVirtual/
 ├── README.md                       (este archivo)
+├── .gitignore
 ├── presentacion.mongodb.js         (Playground listo para VS Code)
 ├── backend/
 │   ├── package.json
 │   ├── .env                        (variables de entorno)
+│   ├── .env.example                (plantilla de variables)
 │   ├── server.js                   (punto de entrada)
 │   ├── config/
 │   │   └── db.js                   (conexión a MongoDB)
@@ -394,36 +402,163 @@ SistemaGestionInventarioTiendaVirtual/
 │   ├── controllers/
 │   │   ├── productoController.js
 │   │   ├── clienteController.js
-│   │   ├── pedidoController.js    (¡el importante! con $inc)
+│   │   ├── pedidoController.js    (¡el importante! con $inc y cambio de estado)
 │   │   └── informeController.js   (¡el importante! con aggregate)
 │   ├── routes/
 │   │   ├── productoRoutes.js
 │   │   ├── clienteRoutes.js
 │   │   ├── pedidoRoutes.js
 │   │   └── informeRoutes.js
-│   └── seed.js                     (datos de prueba)
+│   └── seed.js                     (datos de prueba con imágenes)
 └── frontend/
     ├── package.json
     ├── index.html
     ├── vite.config.js
     └── src/
         ├── main.jsx
-        ├── App.jsx
+        ├── App.jsx                 (incluye botón Dark Mode)
+        ├── App.css                 (estilos + variables de Dark Mode)
         ├── api.js                  (instancia de Axios)
         └── components/
-            ├── Productos.jsx
+            ├── Productos.jsx       (con categorías fijas, imagen y labels)
             ├── Clientes.jsx
-            ├── Pedidos.jsx
+            ├── Pedidos.jsx         (con selector de estado)
             └── Informes.jsx
 ```
 
 ---
 
-## 8. Notas Didácticas Finales
+## 8. Mejoras de UX/UI
+
+Esta sección resume las mejoras visuales y funcionales agregadas sobre la versión base.
+
+### 8.1. Categorías predefinidas
+
+En el formulario de Productos, el campo "Categoría" es un `<select>` con cinco opciones fijas que simulan una tienda de hardware/gaming:
+
+- **Componentes PC**
+- **Periféricos**
+- **Monitores**
+- **Notebooks**
+- **Accesorios**
+
+Esto evita errores de tipeo y mantiene consistencia para los informes por categoría.
+
+### 8.2. Claridad en los inputs
+
+Cada campo del formulario de Productos tiene su `<label>` y `placeholder` descriptivo, por ejemplo:
+
+- `Precio (en pesos $)` — placeholder: *"Ej: 15000"*
+- `Stock (unidades disponibles)` — placeholder: *"Ej: 25"*
+
+De esta forma es imposible confundir en qué casilla va cada dato.
+
+### 8.3. Imagen del producto
+
+Cada producto puede tener una **URL de imagen** que se guarda en el campo `imagen` del modelo (como simple string). Las ventajas de esta implementación:
+
+- **Didáctica**: no requiere storage, ni Cloudinary, ni uploads. Es un String plano.
+- **Visible**: la imagen se renderiza directamente en la tarjeta de cada producto.
+- **Robusta**: si la URL falla o está vacía, se muestra un placeholder automático (`onError`).
+- **Datos de prueba**: el `seed.js` carga URLs de `placehold.co` para que la presentación luzca imágenes reales.
+
+**Ejemplo de documento con imagen:**
+
+```json
+{
+  "nombre": "Mouse Gamer RGB",
+  "precio": 15000,
+  "stock": 25,
+  "categoria": "Periféricos",
+  "imagen": "https://placehold.co/400x300/2563eb/ffffff?text=Mouse"
+}
+```
+
+### 8.4. Modificar el estado del pedido
+
+En cada tarjeta del **Historial de Pedidos** hay un `<select>` que permite cambiar el estado del pedido en vivo:
+
+- `pendiente`
+- `enviado`
+- `entregado`
+
+Al cambiarlo, el frontend hace `PUT /api/pedidos/:id/estado` y el backend actualiza el documento en MongoDB, devolviendo el pedido actualizado. El badge de estado se refresca automáticamente.
+
+**Backend (controlador):**
+
+```javascript
+async function actualizarEstado(req, res) {
+  const { estado } = req.body;
+  const estadosValidos = ['pendiente', 'enviado', 'entregado'];
+  if (!estadosValidos.includes(estado)) {
+    return res.status(400).json({ error: 'Estado inválido' });
+  }
+  const actualizado = await Pedido.findByIdAndUpdate(
+    req.params.id,
+    { estado },
+    { new: true }
+  );
+  res.json(actualizado);
+}
+```
+
+**Frontend:**
+
+```jsx
+const cambiarEstado = async (id, nuevoEstado) => {
+  await api.put(`/pedidos/${id}/estado`, { estado: nuevoEstado });
+  cargar();
+};
+
+<select value={p.estado} onChange={(e) => cambiarEstado(p._id, e.target.value)}>
+  <option value="pendiente">pendiente</option>
+  <option value="enviado">enviado</option>
+  <option value="entregado">entregado</option>
+</select>
+```
+
+### 8.5. Modo Oscuro (Dark Mode)
+
+En la esquina superior derecha de la página hay un botón 🌙 / ☀️ que alterna entre **Modo Claro** y **Modo Oscuro**.
+
+**Implementación técnica:**
+
+1. **Variables CSS en `:root`** (tema claro por defecto): definen colores como `--bg-card`, `--color-texto`, `--color-primario`, etc.
+2. **Override en `body.dark-theme`**: redefine esas mismas variables con los colores oscuros.
+3. **React**: mantiene un estado `dark` (boolean). Al cambiar, hace `document.body.classList.toggle('dark-theme', dark)`.
+4. **Persistencia**: la elección se guarda en `localStorage`, así el modo elegido sobrevive a recargas.
+
+**Ejemplo simplificado del CSS:**
+
+```css
+:root {
+  --bg-card:  #ffffff;
+  --texto:    #1f2937;
+  --primario: #2563eb;
+}
+
+body.dark-theme {
+  --bg-card:  #1e293b;
+  --texto:    #e2e8f0;
+  --primario: #3b82f6;
+}
+
+.card {
+  background: var(--bg-card);
+  color: var(--texto);
+}
+```
+
+**Ventaja didáctica:** como **toda** la app usa variables, basta con cambiar la clase del `<body>` para re-tematizar la página completa sin tocar un solo componente.
+
+---
+
+## 9. Notas Didácticas Finales
 
 - **Mongoose** es un ODM (Object Document Mapper). Te permite definir **esquemas** (la forma del documento) y te da métodos como `find()`, `create()`, etc.
 - **El `populate`** es como un JOIN de SQL. Trae el documento referenciado en vez de solo su ID.
 - **El `$inc`** es atómico: si dos ventas ocurren al mismo tiempo sobre el mismo producto, MongoDB no las mezcla.
 - **El Aggregation Framework** es un pipeline: la salida de una etapa es la entrada de la siguiente.
+- **Las variables CSS** son la forma más simple de implementar temas: definís colores en `:root` y los reasignás en otra clase. Todos los componentes usan `var(--mi-color)`, así que con un solo cambio de clase en el `<body>` se re-tematiza la app entera.
 
 Éxitos en la defensa. 🚀

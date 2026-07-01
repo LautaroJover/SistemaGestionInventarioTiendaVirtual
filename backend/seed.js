@@ -18,11 +18,12 @@ async function seed() {
 
   // Productos
   const productos = await Producto.insertMany([
-    { nombre: 'Mouse Gamer RGB',   descripcion: 'Mouse óptico 16000 DPI',       precio: 15000, stock: 25, categoria: 'Periféricos' },
-    { nombre: 'Teclado Mecánico',  descripcion: 'Teclado switches azules',       precio: 35000, stock: 15, categoria: 'Periféricos' },
-    { nombre: 'Auriculares BT',    descripcion: 'Auriculares inalámbricos',      precio: 28000, stock: 20, categoria: 'Audio' },
-    { nombre: 'Monitor 24" 144Hz', descripcion: 'Monitor gamer Full HD',         precio: 120000, stock: 8,  categoria: 'Pantallas' },
-    { nombre: 'Webcam Full HD',    descripcion: 'Cámara web con micrófono',      precio: 22000, stock: 30, categoria: 'Periféricos' }
+    { nombre: 'Mouse Gamer RGB',   descripcion: 'Mouse óptico 16000 DPI',       precio: 15000,  stock: 25, categoria: 'Periféricos',   imagen: 'https://placehold.co/400x300/2563eb/ffffff?text=Mouse' },
+    { nombre: 'Teclado Mecánico',  descripcion: 'Teclado switches azules',       precio: 35000,  stock: 15, categoria: 'Periféricos',   imagen: 'https://placehold.co/400x300/1e40af/ffffff?text=Teclado' },
+    { nombre: 'Auriculares BT',    descripcion: 'Auriculares inalámbricos',      precio: 28000,  stock: 20, categoria: 'Accesorios',    imagen: 'https://placehold.co/400x300/059669/ffffff?text=Auriculares' },
+    { nombre: 'Monitor 24 144Hz',  descripcion: 'Monitor gamer Full HD',         precio: 120000, stock: 8,  categoria: 'Monitores',     imagen: 'https://placehold.co/400x300/dc2626/ffffff?text=Monitor' },
+    { nombre: 'Notebook Gamer',    descripcion: 'Notebook i7 16GB RAM RTX 3060', precio: 850000, stock: 5,  categoria: 'Notebooks',     imagen: 'https://placehold.co/400x300/7c3aed/ffffff?text=Notebook' },
+    { nombre: 'Webcam Full HD',    descripcion: 'Cámara web con micrófono',      precio: 22000,  stock: 30, categoria: 'Accesorios',    imagen: 'https://placehold.co/400x300/ea580c/ffffff?text=Webcam' }
   ]);
   console.log('Productos insertados:', productos.length);
 

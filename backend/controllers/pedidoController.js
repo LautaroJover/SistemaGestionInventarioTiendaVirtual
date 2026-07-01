@@ -94,4 +94,34 @@ async function eliminar(req, res) {
   }
 }
 
-module.exports = { listar, crear, eliminar };
+// PUT /api/pedidos/:id/estado
+// Actualiza el estado de un pedido. Acepta: 'pendiente' | 'enviado' | 'entregado'.
+async function actualizarEstado(req, res) {
+  try {
+    const { estado } = req.body;
+
+    // Validamos que el estado sea uno de los permitidos.
+    const estadosValidos = ['pendiente', 'enviado', 'entregado'];
+    if (!estadosValidos.includes(estado)) {
+      return res.status(400).json({
+        error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
+      });
+    }
+
+    const actualizado = await Pedido.findByIdAndUpdate(
+      req.params.id,
+      { estado },
+      { new: true } // devuelve el documento YA actualizado
+    )
+      .populate('cliente', 'nombre email')
+      .populate('productos.producto', 'nombre precio stock');
+
+    if (!actualizado) return res.status(404).json({ error: 'Pedido no encontrado' });
+
+    res.json(actualizado);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = { listar, crear, eliminar, actualizarEstado };

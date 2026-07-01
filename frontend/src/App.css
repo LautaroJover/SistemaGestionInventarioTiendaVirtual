@@ -1,7 +1,69 @@
 /* =========================================================
    App.css — Sistema de Gestión de Inventario y Ventas
-   CSS puro, sin frameworks. Comentado por secciones.
+   CSS puro, sin frameworks. Soporta MODO OSCURO con variables.
    ========================================================= */
+
+/* --- VARIABLES DE COLOR (tema claro por defecto) --- */
+:root {
+  --bg-app:        #f5f7fa;
+  --bg-card:       #ffffff;
+  --bg-input:      #ffffff;
+  --bg-form:       #f9fafb;
+  --bg-stock:      #f3f4f6;
+  --bg-lista-prod: #f9fafb;
+
+  --color-texto:        #1f2937;
+  --color-texto-suave:  #6b7280;
+  --color-texto-label:  #4b5563;
+  --color-texto-ayuda:  #9ca3af;
+
+  --color-titulo:    #1e3a8a;
+  --color-borde:     #e5e7eb;
+  --color-borde-foco:#2563eb;
+
+  --color-primario:        #2563eb;
+  --color-primario-hover:  #1d4ed8;
+  --color-primario-sombra: rgba(37, 99, 235, 0.3);
+
+  --color-peligro:        #dc2626;
+  --color-peligro-hover:  #b91c1c;
+
+  --color-secundario:        #e5e7eb;
+  --color-secundario-hover:  #d1d5db;
+
+  --gradiente-fondo: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%);
+}
+
+/* --- VARIABLES DE COLOR (tema oscuro, se activa con .dark-theme en body) --- */
+body.dark-theme {
+  --bg-app:        #0f172a;
+  --bg-card:       #1e293b;
+  --bg-input:      #334155;
+  --bg-form:       #1e293b;
+  --bg-stock:      #334155;
+  --bg-lista-prod: #0f172a;
+
+  --color-texto:        #e2e8f0;
+  --color-texto-suave:  #94a3b8;
+  --color-texto-label:  #cbd5e1;
+  --color-texto-ayuda:  #64748b;
+
+  --color-titulo:    #60a5fa;
+  --color-borde:     #334155;
+  --color-borde-foco:#60a5fa;
+
+  --color-primario:        #3b82f6;
+  --color-primario-hover:  #2563eb;
+  --color-primario-sombra: rgba(59, 130, 246, 0.4);
+
+  --color-peligro:        #ef4444;
+  --color-peligro-hover:  #dc2626;
+
+  --color-secundario:        #475569;
+  --color-secundario-hover:  #64748b;
+
+  --gradiente-fondo: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
 
 /* --- Reset y base --- */
 * {
@@ -12,38 +74,66 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%);
-  color: #1f2937;
+  background: var(--gradiente-fondo);
+  color: var(--color-texto);
   min-height: 100vh;
   line-height: 1.5;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* --- Contenedor principal de la app --- */
+/* --- Contenedor principal --- */
 .app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
 
-/* --- Cabecera con el título y subtítulo --- */
+/* --- Cabecera con el título y el botón de Dark Mode --- */
 .app-header {
-  text-align: center;
-  padding: 32px 16px;
+  padding: 24px;
   margin-bottom: 24px;
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+.header-contenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .app-header h1 {
   font-size: 2rem;
-  color: #1e3a8a;
-  margin-bottom: 8px;
+  color: var(--color-titulo);
+  margin-bottom: 4px;
 }
 
 .app-header p {
-  color: #6b7280;
+  color: var(--color-texto-suave);
   font-size: 0.95rem;
+}
+
+/* --- Botón Dark Mode (esquina superior derecha) --- */
+.btn-dark-toggle {
+  padding: 10px 18px;
+  border: 2px solid var(--color-borde);
+  background: var(--bg-card);
+  color: var(--color-texto);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-dark-toggle:hover {
+  border-color: var(--color-primario);
+  color: var(--color-primario);
+  transform: translateY(-1px);
 }
 
 /* --- Barra de navegación por pestañas --- */
@@ -59,8 +149,8 @@ body {
   min-width: 140px;
   padding: 12px 20px;
   border: none;
-  background: white;
-  color: #4b5563;
+  background: var(--bg-card);
+  color: var(--color-texto-label);
   font-size: 1rem;
   font-weight: 600;
   border-radius: 8px;
@@ -70,34 +160,35 @@ body {
 }
 
 .tab:hover {
-  background: #eff6ff;
-  color: #1e3a8a;
+  background: var(--color-secundario);
+  color: var(--color-titulo);
 }
 
 .tab-active {
-  background: #2563eb;
+  background: var(--color-primario);
   color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px var(--color-primario-sombra);
 }
 
 .tab-active:hover {
-  background: #1d4ed8;
+  background: var(--color-primario-hover);
   color: white;
 }
 
-/* --- Contenedor de cada sección (Productos, Clientes, etc.) --- */
+/* --- Contenedor de cada sección --- */
 .seccion {
-  background: white;
+  background: var(--bg-card);
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  color: var(--color-texto);
 }
 
 .seccion h2 {
-  color: #1e3a8a;
+  color: var(--color-titulo);
   margin-bottom: 16px;
   font-size: 1.4rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--color-borde);
   padding-bottom: 8px;
 }
 
@@ -108,7 +199,7 @@ body {
 .subtitulo {
   margin: 12px 0 8px;
   font-size: 0.9rem;
-  color: #4b5563;
+  color: var(--color-texto-label);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -120,41 +211,59 @@ body {
   gap: 12px;
   margin-bottom: 24px;
   padding: 16px;
-  background: #f9fafb;
+  background: var(--bg-form);
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-borde);
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .form-grid-4 {
   grid-template-columns: repeat(4, 1fr);
 }
 
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo-full {
+  grid-column: 1 / -1;
+}
+
 .label {
   font-size: 0.85rem;
-  color: #4b5563;
+  color: var(--color-texto-label);
   font-weight: 600;
-  margin-top: 4px;
+}
+
+.ayuda {
+  font-size: 0.78rem;
+  color: var(--color-texto-ayuda);
+  margin-top: 2px;
 }
 
 .input {
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-borde);
   border-radius: 6px;
   font-size: 0.95rem;
+  background: var(--bg-input);
+  color: var(--color-texto);
   transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
+  font-family: inherit;
 }
 
 .input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--color-borde-foco);
+  box-shadow: 0 0 0 3px var(--color-primario-sombra);
 }
 
 .input-cantidad {
@@ -163,7 +272,6 @@ body {
 
 select.input {
   cursor: pointer;
-  background: white;
 }
 
 .fila-item {
@@ -179,8 +287,6 @@ select.input {
 }
 
 /* --- Botones (3 variantes) --- */
-
-/* Botón principal: azul, para acciones de creación */
 .btn {
   padding: 10px 18px;
   border: none;
@@ -192,6 +298,7 @@ select.input {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-family: inherit;
 }
 
 .btn:hover {
@@ -204,27 +311,25 @@ select.input {
 }
 
 .btn-primary {
-  background: #2563eb;
+  background: var(--color-primario);
   color: white;
 }
 
 .btn-primary:hover {
-  background: #1d4ed8;
+  background: var(--color-primario-hover);
 }
 
-/* Botón secundario: gris claro, para acciones auxiliares */
 .btn-secondary {
-  background: #e5e7eb;
-  color: #1f2937;
+  background: var(--color-secundario);
+  color: var(--color-texto);
 }
 
 .btn-secondary:hover {
-  background: #d1d5db;
+  background: var(--color-secundario-hover);
 }
 
-/* Botón de peligro: rojo, para eliminar */
 .btn-danger {
-  background: #dc2626;
+  background: var(--color-peligro);
   color: white;
   margin-top: 12px;
   width: 100%;
@@ -232,7 +337,7 @@ select.input {
 }
 
 .btn-danger:hover {
-  background: #b91c1c;
+  background: var(--color-peligro-hover);
 }
 
 /* --- Grid de tarjetas (cards) --- */
@@ -244,8 +349,8 @@ select.input {
 
 /* --- Tarjeta individual --- */
 .card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-card);
+  border: 1px solid var(--color-borde);
   border-radius: 10px;
   padding: 16px;
   transition: all 0.2s ease;
@@ -254,26 +359,36 @@ select.input {
 }
 
 .card:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+  border-color: var(--color-primario);
+  box-shadow: 0 8px 20px var(--color-primario-sombra);
   transform: translateY(-2px);
 }
 
+/* Imagen del producto (requisito 3) */
+.card-imagen {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: var(--bg-stock);
+}
+
 .card-titulo {
-  color: #1e3a8a;
+  color: var(--color-titulo);
   font-size: 1.1rem;
   margin-bottom: 6px;
 }
 
 .card-desc {
-  color: #6b7280;
+  color: var(--color-texto-suave);
   font-size: 0.9rem;
   margin-bottom: 12px;
   flex-grow: 1;
 }
 
 .card-linea {
-  color: #4b5563;
+  color: var(--color-texto-label);
   font-size: 0.9rem;
   margin-bottom: 4px;
 }
@@ -292,11 +407,11 @@ select.input {
 }
 
 .card-stock {
-  color: #4b5563;
+  color: var(--color-texto-label);
   font-size: 0.85rem;
   margin-bottom: 8px;
   padding: 6px 10px;
-  background: #f3f4f6;
+  background: var(--bg-stock);
   border-radius: 6px;
   text-align: center;
 }
@@ -337,10 +452,6 @@ select.input {
 }
 
 /* --- Tarjeta de pedido (especial) --- */
-.card-pedido {
-  grid-column: span 1;
-}
-
 .card-pedido-head {
   display: flex;
   justify-content: space-between;
@@ -353,13 +464,27 @@ select.input {
   margin-bottom: 0;
 }
 
+/* --- Selector de estado en pedidos (requisito 4) --- */
+.estado-cambiar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.estado-cambiar .input {
+  text-transform: capitalize;
+}
+
 /* --- Lista de productos dentro de un pedido --- */
 .lista-productos {
   list-style: none;
-  background: #f9fafb;
+  background: var(--bg-lista-prod);
   border-radius: 8px;
   padding: 8px 12px;
   margin: 8px 0 12px;
+  border: 1px solid var(--color-borde);
 }
 
 .item-producto {
@@ -368,8 +493,9 @@ select.input {
   gap: 12px;
   align-items: center;
   padding: 6px 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-borde);
   font-size: 0.9rem;
+  color: var(--color-texto);
 }
 
 .item-producto:last-child {
@@ -377,17 +503,17 @@ select.input {
 }
 
 .item-nombre {
-  color: #1f2937;
+  color: var(--color-texto);
   font-weight: 500;
 }
 
 .item-cantidad {
-  color: #6b7280;
+  color: var(--color-texto-label);
   font-weight: 600;
-  background: white;
+  background: var(--bg-card);
   padding: 2px 8px;
   border-radius: 4px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-borde);
 }
 
 .item-precio {
@@ -398,12 +524,37 @@ select.input {
 /* --- Mensaje cuando no hay datos --- */
 .vacio {
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-texto-ayuda);
   padding: 32px;
   font-style: italic;
 }
 
-/* --- Responsive: en pantallas chicas el form se apila --- */
+/* --- Tabla de informes --- */
+.tabla-informes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  color: var(--color-texto);
+}
+
+.tabla-informes th,
+.tabla-informes td {
+  padding: 10px 12px;
+  border: 1px solid var(--color-borde);
+  text-align: left;
+}
+
+.tabla-informes th {
+  background: var(--bg-stock);
+  color: var(--color-titulo);
+  font-weight: 600;
+}
+
+.tabla-informes tbody tr:hover {
+  background: var(--bg-form);
+}
+
+/* --- Responsive --- */
 @media (max-width: 768px) {
   .form-grid,
   .form-grid-4 {
@@ -411,5 +562,9 @@ select.input {
   }
   .app-header h1 {
     font-size: 1.5rem;
+  }
+  .header-contenido {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
