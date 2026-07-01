@@ -1,0 +1,415 @@
+/* =========================================================
+   App.css — Sistema de Gestión de Inventario y Ventas
+   CSS puro, sin frameworks. Comentado por secciones.
+   ========================================================= */
+
+/* --- Reset y base --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%);
+  color: #1f2937;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* --- Contenedor principal de la app --- */
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* --- Cabecera con el título y subtítulo --- */
+.app-header {
+  text-align: center;
+  padding: 32px 16px;
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.app-header h1 {
+  font-size: 2rem;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* --- Barra de navegación por pestañas --- */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 20px;
+  border: none;
+  background: white;
+  color: #4b5563;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tab:hover {
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.tab-active {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.tab-active:hover {
+  background: #1d4ed8;
+  color: white;
+}
+
+/* --- Contenedor de cada sección (Productos, Clientes, etc.) --- */
+.seccion {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.seccion h2 {
+  color: #1e3a8a;
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.mt-grande {
+  margin-top: 32px;
+}
+
+.subtitulo {
+  margin: 12px 0 8px;
+  font-size: 0.9rem;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Formularios --- */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.form-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #4b5563;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.input-cantidad {
+  max-width: 100px;
+}
+
+select.input {
+  cursor: pointer;
+  background: white;
+}
+
+.fila-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.acciones-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* --- Botones (3 variantes) --- */
+
+/* Botón principal: azul, para acciones de creación */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* Botón secundario: gris claro, para acciones auxiliares */
+.btn-secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+/* Botón de peligro: rojo, para eliminar */
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  margin-top: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* --- Grid de tarjetas (cards) --- */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* --- Tarjeta individual --- */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-titulo {
+  color: #1e3a8a;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.card-linea {
+  color: #4b5563;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-precio {
+  color: #059669;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.card-stock {
+  color: #4b5563;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* --- Badges (etiquetas pequeñas) --- */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-cat {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-estado {
+  font-size: 0.8rem;
+}
+
+.badge-pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-enviado {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-entregado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* --- Tarjeta de pedido (especial) --- */
+.card-pedido {
+  grid-column: span 1;
+}
+
+.card-pedido-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.card-pedido-head .card-titulo {
+  margin-bottom: 0;
+}
+
+/* --- Lista de productos dentro de un pedido --- */
+.lista-productos {
+  list-style: none;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0 12px;
+}
+
+.item-producto {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.item-producto:last-child {
+  border-bottom: none;
+}
+
+.item-nombre {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.item-cantidad {
+  color: #6b7280;
+  font-weight: 600;
+  background: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.item-precio {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* --- Mensaje cuando no hay datos --- */
+.vacio {
+  text-align: center;
+  color: #9ca3af;
+  padding: 32px;
+  font-style: italic;
+}
+
+/* --- Responsive: en pantallas chicas el form se apila --- */
+@media (max-width: 768px) {
+  .form-grid,
+  .form-grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+}
