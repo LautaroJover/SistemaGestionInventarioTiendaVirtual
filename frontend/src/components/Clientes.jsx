@@ -44,24 +44,67 @@ export default function Clientes() {
         <button type="submit" className="btn btn-primary">+ Crear Cliente</button>
       </form>
 
-      {clientes.length === 0
-        ? <p className="vacio">No hay clientes cargados todavía.</p>
-        : (
-          <div className="grid-cards">
-            {clientes.map(c => (
-              <div key={c._id} className="card">
-                <h3 className="card-titulo">{c.nombre}</h3>
-                <p className="card-linea">📧 {c.email}</p>
-                <p className="card-linea">📞 {c.telefono || '—'}</p>
-                <p className="card-linea">🏠 {c.direccion || '—'}</p>
-                <button className="btn btn-danger" onClick={() => eliminar(c._id, c.nombre)}>
-                  🗑 Eliminar
-                </button>
-              </div>
-            ))}
+      {/*
+        VISTA ERP: tabla compacta en lugar de tarjetas. Misma
+        estructura que Productos para mantener coherencia visual.
+      */}
+      <div className="datatable-wrapper">
+        <div className="datatable-toolbar">
+          <span className="datatable-titulo">
+            Listado de clientes
+            <span className="datatable-count">({clientes.length})</span>
+          </span>
+          <div className="datatable-acciones">
+            <button className="btn-export" onClick={() => alert('Use el formulario de arriba para dar de alta')}>
+              + Nuevo
+            </button>
           </div>
-        )
-      }
+        </div>
+
+        <div className="datatable-scroll">
+          <table className="datatable">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th className="datatable-acciones-th">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clientes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="datatable-vacio">
+                    No hay clientes cargados todavía.
+                  </td>
+                </tr>
+              ) : (
+                clientes.map(c => (
+                  <tr key={c._id}>
+                    <td><strong>{c.nombre}</strong></td>
+                    <td>{c.email}</td>
+                    <td>{c.telefono || '—'}</td>
+                    <td title={c.direccion}>{c.direccion || '—'}</td>
+                    <td className="datatable-acciones-td">
+                      <button
+                        className="icon-btn icon-btn-edit"
+                        title="Editar"
+                        onClick={() => alert('Edición inline: pendiente')}
+                      >✏️</button>
+                      <button
+                        className="icon-btn icon-btn-delete"
+                        title="Eliminar"
+                        onClick={() => eliminar(c._id, c.nombre)}
+                      >🗑</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   );
 }

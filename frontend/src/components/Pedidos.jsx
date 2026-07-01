@@ -110,61 +110,87 @@ export default function Pedidos() {
 
       <h2 className="mt-grande">Historial de Pedidos</h2>
 
-      {pedidos.length === 0
-        ? <p className="vacio">Todavía no hay pedidos registrados.</p>
-        : (
-          <div className="grid-cards">
-            {pedidos.map(p => (
-              <div key={p._id} className="card card-pedido">
-                <div className="card-pedido-head">
-                  <h3 className="card-titulo">
-                    {p.cliente?.nombre || 'Cliente eliminado'}
-                  </h3>
-                  <span className={badgeEstado(p.estado)}>{p.estado}</span>
-                </div>
-
-                <p className="card-linea">📅 Fecha: <strong>{fmtFecha(p.fecha)}</strong></p>
-                <p className="card-linea">💰 Total: <strong>${p.total}</strong></p>
-
-                <h4 className="subtitulo">Productos:</h4>
-                {p.productos && p.productos.length > 0 ? (
-                  <ul className="lista-productos">
-                    {p.productos.map((it, idx) => (
-                      <li key={idx} className="item-producto">
-                        <span className="item-nombre">
-                          {it.producto?.nombre || 'Producto eliminado'}
-                        </span>
-                        <span className="item-cantidad">x{it.cantidad}</span>
-                        <span className="item-precio">${it.precioUnitario}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="card-linea">Sin productos.</p>
-                )}
-
-                {/* Selector de estado (requisito 4) */}
-                <div className="estado-cambiar">
-                  <label className="label">Cambiar estado:</label>
-                  <select
-                    className="input"
-                    value={p.estado}
-                    onChange={(e) => cambiarEstado(p._id, e.target.value)}
-                  >
-                    {ESTADOS.map(est => (
-                      <option key={est} value={est}>{est}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <button className="btn btn-danger" onClick={() => eliminar(p._id)}>
-                  🗑 Eliminar Pedido
-                </button>
-              </div>
-            ))}
+      {/*
+        VISTA ERP: tabla compacta con toolbar. El select de estado
+        va dentro de la última celda (inline) para no romper la
+        densidad de la grilla.
+      */}
+      <div className="datatable-wrapper">
+        <div className="datatable-toolbar">
+          <span className="datatable-titulo">
+            Listado de pedidos
+            <span className="datatable-count">({pedidos.length})</span>
+          </span>
+          <div className="datatable-acciones">
+            <button className="btn-export" onClick={() => cargar()}>
+              ⟳ Refrescar
+            </button>
           </div>
-        )
-      }
+        </div>
+
+        <div className="datatable-scroll">
+          <table className="datatable">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Productos</th>
+                <th style={{ textAlign: 'right' }}>Total</th>
+                <th>Estado</th>
+                <th>Cambiar a</th>
+                <th className="datatable-acciones-th">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pedidos.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="datatable-vacio">
+                    Todavía no hay pedidos registrados.
+                  </td>
+                </tr>
+              ) : (
+                pedidos.map(p => (
+                  <tr key={p._id}>
+                    <td><strong>{p.cliente?.nombre || 'Cliente eliminado'}</strong></td>
+                    <td className="datatable-mono">{fmtFecha(p.fecha)}</td>
+                    <td>
+                      {(p.productos || []).map((it, idx) => (
+                        <div key={idx} className="pedido-item">
+                          {it.producto?.nombre || '?'} <span className="datatable-mono">x{it.cantidad}</span>
+                        </div>
+                      ))}
+                    </td>
+                    <td style={{ textAlign: 'right' }} className="datatable-mono"><strong>${p.total}</strong></td>
+                    <td>
+                      <span className={`badge-estado-inline badge-${p.estado}`}>
+                        {p.estado}
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        className="input input-inline"
+                        value={p.estado}
+                        onChange={(e) => cambiarEstado(p._id, e.target.value)}
+                      >
+                        {ESTADOS.map(est => (
+                          <option key={est} value={est}>{est}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="datatable-acciones-td">
+                      <button
+                        className="icon-btn icon-btn-delete"
+                        title="Eliminar"
+                        onClick={() => eliminar(p._id)}
+                      >🗑</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   );
 }

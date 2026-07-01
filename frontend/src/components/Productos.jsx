@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 
-// Lista de categorías fijas para la tienda (requisito 1)
+// Lista de categorías fijas para la tienda
 const CATEGORIAS = ['Componentes PC', 'Periféricos', 'Monitores', 'Notebooks', 'Accesorios'];
 
-const vacio = { nombre: '', descripcion: '', precio: '', stock: '', categoria: '', imagen: '' };
+// Formulario vacío: lo definimos arriba para reiniciarlo al guardar.
+const vacio = { nombre: '', descripcion: '', precio: '', stock: '', categoria: '' };
 
 export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [form, setForm] = useState(vacio);
 
+  // Carga la lista de productos desde el backend
   const cargar = async () => {
     const { data } = await api.get('/productos');
     setProductos(data);
@@ -17,9 +19,9 @@ export default function Productos() {
 
   useEffect(() => { cargar(); }, []);
 
+  // Envía el formulario (crear producto)
   const submit = async (e) => {
     e.preventDefault();
-    // Convertimos precio y stock a número antes de mandar al backend
     const payload = {
       ...form,
       precio: Number(form.precio),
@@ -78,50 +80,75 @@ export default function Productos() {
               {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-
-          <div className="campo campo-full">
-            <label className="label">URL de la imagen del producto</label>
-            <input className="input" type="url" placeholder="https://ejemplo.com/mi-imagen.jpg"
-                   value={form.imagen} onChange={e => setForm({ ...form, imagen: e.target.value })} />
-            <small className="ayuda">Pegá cualquier URL pública de imagen. Si la dejás vacía, se mostrará una imagen por defecto.</small>
-          </div>
         </div>
 
         <button type="submit" className="btn btn-primary">+ Agregar Producto</button>
       </form>
 
-      {productos.length === 0
-        ? <p className="vacio">No hay productos cargados todavía.</p>
-        : (
-          <div className="grid-cards">
-            {productos.map(p => (
-              <div key={p._id} className="card">
-                {/* Imagen del producto. Si no hay, mostramos un placeholder. */}
-                <img
-                  className="card-imagen"
-                  src={p.imagen || 'https://placehold.co/400x300?text=Sin+imagen'}
-                  alt={p.nombre}
-                  onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=Sin+imagen'; }}
-                />
-
-                <h3 className="card-titulo">{p.nombre}</h3>
-                <p className="card-desc">{p.descripcion || 'Sin descripción'}</p>
-
-                <div className="card-meta">
-                  <span className="badge badge-cat">{p.categoria}</span>
-                  <span className="card-precio">${p.precio}</span>
-                </div>
-
-                <p className="card-stock">Stock disponible: <strong>{p.stock}</strong></p>
-
-                <button className="btn btn-danger" onClick={() => eliminar(p._id, p.nombre)}>
-                  🗑 Eliminar
-                </button>
-              </div>
-            ))}
+      {/*
+        VISTA ERP: en lugar de tarjetas, mostramos los productos
+        en una tabla compacta (Data Grid). Estilo utilitario,
+        ideal para manejar gran cantidad de registros.
+      */}
+      <div className="datatable-wrapper">
+        <div className="datatable-toolbar">
+          <span className="datatable-titulo">
+            Listado de productos
+            <span className="datatable-count">({productos.length})</span>
+          </span>
+          <div className="datatable-acciones">
+            <button className="btn-export" onClick={() => alert('Use Informes para exportar productos')}>
+              + Nuevo
+            </button>
           </div>
-        )
-      }
+        </div>
+
+        <div className="datatable-scroll">
+          <table className="datatable">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th style={{ textAlign: 'right' }}>Precio</th>
+                <th style={{ textAlign: 'right' }}>Stock</th>
+                <th>Descripción</th>
+                <th className="datatable-acciones-th">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="datatable-vacio">
+                    No hay productos cargados todavía.
+                  </td>
+                </tr>
+              ) : (
+                productos.map(p => (
+                  <tr key={p._id}>
+                    <td><strong>{p.nombre}</strong></td>
+                    <td><span className="badge badge-cat">{p.categoria}</span></td>
+                    <td style={{ textAlign: 'right' }} className="datatable-mono">${p.precio}</td>
+                    <td style={{ textAlign: 'right' }} className="datatable-mono">{p.stock}</td>
+                    <td title={p.descripcion}>{p.descripcion || '—'}</td>
+                    <td className="datatable-acciones-td">
+                      <button
+                        className="icon-btn icon-btn-edit"
+                        title="Editar"
+                        onClick={() => alert('Edición inline: pendiente')}
+                      >✏️</button>
+                      <button
+                        className="icon-btn icon-btn-delete"
+                        title="Eliminar"
+                        onClick={() => eliminar(p._id, p.nombre)}
+                      >🗑</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   );
 }
