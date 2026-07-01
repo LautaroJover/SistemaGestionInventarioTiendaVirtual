@@ -11,7 +11,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>🏪 Tienda Electrónica</h1>
-        <p>Sistema de Gestión de Inventario y Ventas — Base de Datos II</p>
+        <p>Sistema de Gestión de Inventario y Ventas</p>
       </header>
 
       <nav className="tabs">
