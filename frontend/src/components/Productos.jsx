@@ -11,6 +11,12 @@ export default function Productos() {
   const [productos, setProductos] = useState([]);
   const [form, setForm] = useState(vacio);
 
+  // ----- Estado para la edición inline -----
+  // editRowId  -> id del producto en edición (null = ninguno)
+  // editData   -> copia editable de esa fila
+  const [editRowId, setEditRowId] = useState(null);
+  const [editData, setEditData]   = useState({});
+
   // Carga la lista de productos desde el backend
   const cargar = async () => {
     const { data } = await api.get('/productos');
@@ -36,6 +42,43 @@ export default function Productos() {
     if (!confirm(`¿Eliminar el producto "${nombre}"?`)) return;
     try {
       await api.delete(`/productos/${id}`);
+      cargar();
+    } catch (err) {
+      alert('Error: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  // ============================================================
+  //  Edición inline
+  // ============================================================
+  // 1) Al hacer click en "Editar", clonamos la fila y activamos
+  //    el modo edición guardando su id.
+  const empezarEdicion = (p) => {
+    setEditRowId(p._id);
+    setEditData({
+      nombre:      p.nombre,
+      descripcion: p.descripcion || '',
+      precio:      p.precio,
+      stock:       p.stock,
+      categoria:   p.categoria
+    });
+  };
+
+  // 2) "Cancelar" -> limpiamos el estado, sin tocar la BD.
+  const cancelarEdicion = () => {
+    setEditRowId(null);
+    setEditData({});
+  };
+
+  // 3) "Guardar" -> PUT al backend con los datos editados.
+  const guardarEdicion = async (id) => {
+    try {
+      await api.put(`/productos/${id}`, {
+        ...editData,
+        precio: Number(editData.precio),
+        stock:  Number(editData.stock)
+      });
+      cancelarEdicion();
       cargar();
     } catch (err) {
       alert('Error: ' + (err.response?.data?.error || err.message));
@@ -86,9 +129,10 @@ export default function Productos() {
       </form>
 
       {/*
-        VISTA ERP: en lugar de tarjetas, mostramos los productos
-        en una tabla compacta (Data Grid). Estilo utilitario,
+        VISTA ERP: tabla compacta (Data Grid). Estilo utilitario,
         ideal para manejar gran cantidad de registros.
+        En la última celda, la fila puede estar en modo lectura
+        o modo edición según `editRowId`.
       */}
       <div className="datatable-wrapper">
         <div className="datatable-toolbar">
@@ -97,8 +141,8 @@ export default function Productos() {
             <span className="datatable-count">({productos.length})</span>
           </span>
           <div className="datatable-acciones">
-            <button className="btn-export" onClick={() => alert('Use Informes para exportar productos')}>
-              + Nuevo
+            <button className="btn-export" onClick={() => cargar()}>
+              ⟳ Refrescar
             </button>
           </div>
         </div>
@@ -123,27 +167,86 @@ export default function Productos() {
                   </td>
                 </tr>
               ) : (
-                productos.map(p => (
-                  <tr key={p._id}>
-                    <td><strong>{p.nombre}</strong></td>
-                    <td><span className="badge badge-cat">{p.categoria}</span></td>
-                    <td style={{ textAlign: 'right' }} className="datatable-mono">${p.precio}</td>
-                    <td style={{ textAlign: 'right' }} className="datatable-mono">{p.stock}</td>
-                    <td title={p.descripcion}>{p.descripcion || '—'}</td>
-                    <td className="datatable-acciones-td">
-                      <button
-                        className="icon-btn icon-btn-edit"
-                        title="Editar"
-                        onClick={() => alert('Edición inline: pendiente')}
-                      >✏️</button>
-                      <button
-                        className="icon-btn icon-btn-delete"
-                        title="Eliminar"
-                        onClick={() => eliminar(p._id, p.nombre)}
-                      >🗑</button>
-                    </td>
-                  </tr>
-                ))
+                productos.map(p => {
+                  // ¿Esta fila está en modo edición?
+                  const enEdicion = editRowId === p._id;
+
+                  return (
+                    <tr key={p._id} className={enEdicion ? 'fila-en-edicion' : ''}>
+                      {/* ----- Nombre ----- */}
+                      <td>
+                        {enEdicion
+                          ? <input className="input input-inline"
+                                   value={editData.nombre}
+                                   onChange={e => setEditData({ ...editData, nombre: e.target.value })} />
+                          : <strong>{p.nombre}</strong>}
+                      </td>
+
+                      {/* ----- Categoría (select) ----- */}
+                      <td>
+                        {enEdicion
+                          ? <select className="input input-inline"
+                                    value={editData.categoria}
+                                    onChange={e => setEditData({ ...editData, categoria: e.target.value })}>
+                              {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                          : <span className="badge badge-cat">{p.categoria}</span>}
+                      </td>
+
+                      {/* ----- Precio ----- */}
+                      <td style={{ textAlign: 'right' }} className="datatable-mono">
+                        {enEdicion
+                          ? <input className="input input-inline input-mono"
+                                   type="number" min="0"
+                                   value={editData.precio}
+                                   onChange={e => setEditData({ ...editData, precio: e.target.value })} />
+                          : `$${p.precio}`}
+                      </td>
+
+                      {/* ----- Stock ----- */}
+                      <td style={{ textAlign: 'right' }} className="datatable-mono">
+                        {enEdicion
+                          ? <input className="input input-inline input-mono"
+                                   type="number" min="0"
+                                   value={editData.stock}
+                                   onChange={e => setEditData({ ...editData, stock: e.target.value })} />
+                          : p.stock}
+                      </td>
+
+                      {/* ----- Descripción ----- */}
+                      <td title={p.descripcion}>
+                        {enEdicion
+                          ? <input className="input input-inline"
+                                   value={editData.descripcion}
+                                   onChange={e => setEditData({ ...editData, descripcion: e.target.value })} />
+                          : p.descripcion || '—'}
+                      </td>
+
+                      {/* ----- Acciones: Editar / Guardar / Cancelar ----- */}
+                      <td className="datatable-acciones-td">
+                        {enEdicion ? (
+                          <>
+                            <button className="icon-btn icon-btn-save"
+                                    title="Guardar"
+                                    onClick={() => guardarEdicion(p._id)}>💾</button>
+                            <button className="icon-btn icon-btn-cancel"
+                                    title="Cancelar"
+                                    onClick={cancelarEdicion}>✕</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="icon-btn icon-btn-edit"
+                                    title="Editar"
+                                    onClick={() => empezarEdicion(p)}>✏️</button>
+                            <button className="icon-btn icon-btn-delete"
+                                    title="Eliminar"
+                                    onClick={() => eliminar(p._id, p.nombre)}>🗑</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

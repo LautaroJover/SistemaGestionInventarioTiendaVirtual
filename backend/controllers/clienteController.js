@@ -43,4 +43,21 @@ async function eliminar(req, res) {
   }
 }
 
-module.exports = { listar, obtener, crear, eliminar };
+// PUT /api/clientes/:id
+// Edita los datos de un cliente. Se usa desde el "modo edición"
+// inline de la tabla en el frontend.
+async function actualizar(req, res) {
+  try {
+    const actualizado = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true } // devuelve el documento YA actualizado
+    );
+    if (!actualizado) return res.status(404).json({ error: 'Cliente no encontrado' });
+    res.json(actualizado);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
+module.exports = { listar, obtener, crear, eliminar, actualizar };

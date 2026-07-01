@@ -790,3 +790,35 @@ body.dark-theme .datatable tbody tr:hover {
 body.dark-theme .badge-pendiente { background: #422006; color: #fde68a; border-color: #92400e; }
 body.dark-theme .badge-enviado   { background: #1e3a8a; color: #bfdbfe; border-color: #1d4ed8; }
 body.dark-theme .badge-entregado { background: #064e3b; color: #a7f3d0; border-color: #047857; }
+
+/* =========================================================
+   Edición inline (Productos / Clientes / Pedidos)
+   ========================================================= */
+
+/* Fila en modo edición: la destacamos con fondo suave */
+.fila-en-edicion {
+  background: #eff6ff !important;
+  box-shadow: inset 3px 0 0 var(--color-primario);
+}
+body.dark-theme .fila-en-edicion {
+  background: rgba(37, 99, 235, 0.08) !important;
+}
+
+/* Input numérico en línea: más angosto y monoespaciado */
+.input-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  text-align: right;
+  max-width: 110px;
+}
+
+/* Botón guardar (verde) y cancelar (gris) en la barra de acciones */
+.icon-btn-save:hover {
+  border-color: #059669;
+  color: #059669;
+  background: #ecfdf5;
+}
+.icon-btn-cancel:hover {
+  border-color: #6b7280;
+  color: #374151;
+  background: #f3f4f6;
+}

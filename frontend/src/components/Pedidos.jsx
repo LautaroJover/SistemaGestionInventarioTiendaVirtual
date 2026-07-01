@@ -11,6 +11,10 @@ export default function Pedidos() {
   const [clienteId, setClienteId] = useState('');
   const [items, setItems] = useState([{ productoId: '', cantidad: 1 }]);
 
+  // ----- Estado para la edición inline (cliente y estado del pedido) -----
+  const [editRowId, setEditRowId] = useState(null);
+  const [editData, setEditData]   = useState({});
+
   const cargar = async () => {
     const [p, c, pr] = await Promise.all([
       api.get('/pedidos'),
@@ -58,11 +62,44 @@ export default function Pedidos() {
     }
   };
 
-  // Cambia el estado de un pedido usando la nueva ruta PUT.
+  // Cambia el estado de un pedido usando la ruta PUT dedicada.
   const cambiarEstado = async (id, nuevoEstado) => {
     try {
       await api.put(`/pedidos/${id}/estado`, { estado: nuevoEstado });
       cargar(); // refrescamos la lista
+    } catch (err) {
+      alert('Error: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  // ============================================================
+  //  Edición inline (re-asignar cliente o corregir estado)
+  // ============================================================
+  //  Por qué NO editamos los items en línea:
+  //  modificar cantidad o producto rompe el stock que ya fue
+  //  descontado al crear el pedido. Lo correcto sería revertir
+  //  el stock y volver a descontar, lo cual escapa al "inline".
+  const empezarEdicion = (p) => {
+    setEditRowId(p._id);
+    setEditData({
+      cliente: p.cliente?._id || '',
+      estado:  p.estado
+    });
+  };
+
+  const cancelarEdicion = () => {
+    setEditRowId(null);
+    setEditData({});
+  };
+
+  const guardarEdicion = async (id) => {
+    try {
+      await api.put(`/pedidos/${id}`, {
+        cliente: editData.cliente,
+        estado:  editData.estado
+      });
+      cancelarEdicion();
+      cargar();
     } catch (err) {
       alert('Error: ' + (err.response?.data?.error || err.message));
     }
@@ -111,9 +148,9 @@ export default function Pedidos() {
       <h2 className="mt-grande">Historial de Pedidos</h2>
 
       {/*
-        VISTA ERP: tabla compacta con toolbar. El select de estado
-        va dentro de la última celda (inline) para no romper la
-        densidad de la grilla.
+        VISTA ERP: tabla compacta con toolbar.
+        Cada fila puede estar en modo lectura o en modo edición
+        (cliente + estado). Los items NO se editan inline.
       */}
       <div className="datatable-wrapper">
         <div className="datatable-toolbar">
@@ -137,55 +174,83 @@ export default function Pedidos() {
                 <th>Productos</th>
                 <th style={{ textAlign: 'right' }}>Total</th>
                 <th>Estado</th>
-                <th>Cambiar a</th>
                 <th className="datatable-acciones-th">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {pedidos.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="datatable-vacio">
+                  <td colSpan={6} className="datatable-vacio">
                     Todavía no hay pedidos registrados.
                   </td>
                 </tr>
               ) : (
-                pedidos.map(p => (
-                  <tr key={p._id}>
-                    <td><strong>{p.cliente?.nombre || 'Cliente eliminado'}</strong></td>
-                    <td className="datatable-mono">{fmtFecha(p.fecha)}</td>
-                    <td>
-                      {(p.productos || []).map((it, idx) => (
-                        <div key={idx} className="pedido-item">
-                          {it.producto?.nombre || '?'} <span className="datatable-mono">x{it.cantidad}</span>
-                        </div>
-                      ))}
-                    </td>
-                    <td style={{ textAlign: 'right' }} className="datatable-mono"><strong>${p.total}</strong></td>
-                    <td>
-                      <span className={`badge-estado-inline badge-${p.estado}`}>
-                        {p.estado}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        className="input input-inline"
-                        value={p.estado}
-                        onChange={(e) => cambiarEstado(p._id, e.target.value)}
-                      >
-                        {ESTADOS.map(est => (
-                          <option key={est} value={est}>{est}</option>
+                pedidos.map(p => {
+                  const enEdicion = editRowId === p._id;
+                  return (
+                    <tr key={p._id} className={enEdicion ? 'fila-en-edicion' : ''}>
+                      {/* ----- Cliente ----- */}
+                      <td>
+                        {enEdicion
+                          ? <select className="input input-inline"
+                                    value={editData.cliente}
+                                    onChange={e => setEditData({ ...editData, cliente: e.target.value })}>
+                              {clientes.map(c => <option key={c._id} value={c._id}>{c.nombre}</option>)}
+                            </select>
+                          : <strong>{p.cliente?.nombre || 'Cliente eliminado'}</strong>}
+                      </td>
+
+                      {/* ----- Fecha (no se edita) ----- */}
+                      <td className="datatable-mono">{fmtFecha(p.fecha)}</td>
+
+                      {/* ----- Productos (no se edita inline) ----- */}
+                      <td>
+                        {(p.productos || []).map((it, idx) => (
+                          <div key={idx} className="pedido-item">
+                            {it.producto?.nombre || '?'} <span className="datatable-mono">x{it.cantidad}</span>
+                          </div>
                         ))}
-                      </select>
-                    </td>
-                    <td className="datatable-acciones-td">
-                      <button
-                        className="icon-btn icon-btn-delete"
-                        title="Eliminar"
-                        onClick={() => eliminar(p._id)}
-                      >🗑</button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      {/* ----- Total (no se edita inline) ----- */}
+                      <td style={{ textAlign: 'right' }} className="datatable-mono"><strong>${p.total}</strong></td>
+
+                      {/* ----- Estado ----- */}
+                      <td>
+                        {enEdicion
+                          ? <select className="input input-inline"
+                                    value={editData.estado}
+                                    onChange={e => setEditData({ ...editData, estado: e.target.value })}>
+                              {ESTADOS.map(est => <option key={est} value={est}>{est}</option>)}
+                            </select>
+                          : <span className={`badge-estado-inline badge-${p.estado}`}>{p.estado}</span>}
+                      </td>
+
+                      {/* ----- Acciones ----- */}
+                      <td className="datatable-acciones-td">
+                        {enEdicion ? (
+                          <>
+                            <button className="icon-btn icon-btn-save"
+                                    title="Guardar"
+                                    onClick={() => guardarEdicion(p._id)}>💾</button>
+                            <button className="icon-btn icon-btn-cancel"
+                                    title="Cancelar"
+                                    onClick={cancelarEdicion}>✕</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="icon-btn icon-btn-edit"
+                                    title="Editar"
+                                    onClick={() => empezarEdicion(p)}>✏️</button>
+                            <button className="icon-btn icon-btn-delete"
+                                    title="Eliminar"
+                                    onClick={() => eliminar(p._id)}>🗑</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

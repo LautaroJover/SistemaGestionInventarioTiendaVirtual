@@ -124,4 +124,42 @@ async function actualizarEstado(req, res) {
   }
 }
 
-module.exports = { listar, crear, eliminar, actualizarEstado };
+// PUT /api/pedidos/:id
+// Edita un pedido completo. Pensado para corregir pedidos mal cargados.
+// NO modifica los items[] (no se editan inline para no romper el stock).
+async function actualizar(req, res) {
+  try {
+    const { cliente, estado, total } = req.body;
+
+    // Armamos un objeto solo con los campos que llegaron.
+    // Así, si el frontend no envía algo, no lo pisamos.
+    const cambios = {};
+    if (cliente !== undefined) cambios.cliente = cliente;
+    if (estado  !== undefined) {
+      const estadosValidos = ['pendiente', 'enviado', 'entregado'];
+      if (!estadosValidos.includes(estado)) {
+        return res.status(400).json({
+          error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(', ')}`
+        });
+      }
+      cambios.estado = estado;
+    }
+    if (total !== undefined) cambios.total = total;
+
+    const actualizado = await Pedido.findByIdAndUpdate(
+      req.params.id,
+      cambios,
+      { new: true }
+    )
+      .populate('cliente', 'nombre email')
+      .populate('productos.producto', 'nombre precio stock');
+
+    if (!actualizado) return res.status(404).json({ error: 'Pedido no encontrado' });
+
+    res.json(actualizado);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = { listar, crear, eliminar, actualizarEstado, actualizar };

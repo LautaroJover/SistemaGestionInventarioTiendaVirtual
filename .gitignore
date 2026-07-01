@@ -24,3 +24,19 @@ frontend/dist/
 # Caché de npm
 .npm/
 .eslintcache
+
+# =====================================================
+# Presentación (diapositivas)
+# No se sube al repo: la presentación se maneja por fuera,
+# se abre con doble click en el navegador.
+# =====================================================
+/Presentacion/
+/presentacion/
+/Presentacion*/
+/presentacion*/
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
